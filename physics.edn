@@ -1,0 +1,45 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a workshop scheduling/logistics coordination
+;; robot handles crew scheduling, materials-usage records and precision-parts
+;; supply orders for a precision-instrument-making crew (ISCO 7311). Its
+;; physical work: carrying instrument cases from receiving to the calibration
+;; lab, setting an instrument onto the calibration bench, and waiting for a
+;; cold-delivered optical part to acclimatise to the lab's reference
+;; temperature before it may be measured.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-7311"
+ :cases
+ [{:id :instrument-case-to-lab
+   :kind :transport
+   :procedure "cart carries a boxed precision instrument from goods-in to the calibration lab"
+   :params {:mass-kg 40.0 :payload-kg 15.0 :v-max-mps 0.8 :a-max-mps2 0.3
+            :brake-decel-mps2 0.4 :drive-force-n 80.0 :crr 0.015
+            :cog-height-m 0.50 :support-half-length-m 0.25 :max-time-s 1200.0}
+   :sweep {:param :distance-m :values [10.0 20.0 40.0 60.0 90.0]}
+   :quantity :cycle-time-s
+   :limit {:max 90.0 :basis "estimate: one goods-in-to-lab leg inside a few minutes so the instrument starts acclimatising promptly; low accel/decel chosen to avoid shock to the instrument"}
+   :boundary {:lo 5.0 :hi 200.0}}
+  {:id :instrument-onto-bench
+   :kind :manipulator
+   :procedure "arm lifts an instrument from the cart top onto the granite calibration bench"
+   :params {:l1-m 0.45 :l2-m 0.40 :m1-kg 3.5 :m2-kg 2.5
+            :from [0.55 0.05] :to [0.35 0.45] :duration-s 3.0 :steps 500}
+   :sweep {:param :payload-kg :values [1.0 3.0 5.0 8.0 12.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 60.0 :basis "estimate: continuous shoulder torque of a light collaborative arm (~5 kg class)"}
+   :boundary {:lo 0.1 :hi 30.0}}
+  {:id :optic-acclimatisation
+   :kind :thermal
+   :procedure "a glass optical blank delivered at 5 C warms in 20 C lab air until its far face is within 1 C of the reference temperature"
+   :params {:thickness-m 0.03 :conductivity-w-mk 1.1 :density-kg-m3 2500.0 :specific-heat-j-kgk 750.0
+            :t0-c 5.0 :t-hot-c 20.0 :h-front-w-m2k 8.0 :t-back-ambient-c 20.0 :h-back-w-m2k 8.0
+            :threshold-c 19.0 :duration-s 21600.0 :nodes 11}
+   :sweep {:param :thickness-m :values [0.01 0.02 0.03 0.05 0.08]}
+   :quantity :time-to-threshold-s
+   :limit {:max 7200.0 :basis "estimate: two-hour acclimatisation window before a calibration slot; 20 C is the reference temperature of ISO 1 but the time limit is a workshop scheduling assumption"}
+   :boundary {:lo 0.005 :hi 0.12}}]}
