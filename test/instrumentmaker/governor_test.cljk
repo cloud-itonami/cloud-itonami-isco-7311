@@ -1,5 +1,5 @@
 (ns instrumentmaker.governor-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [instrumentmaker.store :as store]
             [instrumentmaker.advisor :as advisor]
             [instrumentmaker.governor :as governor]))
