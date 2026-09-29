@@ -1,7 +1,7 @@
 (ns instrumentmaker.store
   "SSoT for the ISCO-08 7311 precision-instrument workshop
   scheduling/logistics coordination actor (itonami actor pattern,
-  ADR-2607121000 / CLAUDE.md Actors section; README's 'Robotics
+  ADR-2607121000 / AGENTS.md Actors section; README's 'Robotics
   premise' — a workshop scheduling/logistics coordination robot
   performs crew scheduling, task/materials-usage/progress-record
   logging and precision-parts/materials supply-order coordination for
